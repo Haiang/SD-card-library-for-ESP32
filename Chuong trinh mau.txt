@@ -1,0 +1,218 @@
+Các chương trình mẫu để đọc và ghi các kiểu giá trị, dữ liệu khác nhau mà phương thức có thể hỗ trợ
+
+1.	Đọc số nguyên dạng 123456789
+
+#include <Arduino.h>
+#include <SD.h>
+#include "SD_ESP32_QH.h"
+
+// Tạo một đối tượng của lớp SD_ESP32_QH
+SD_ESP32_QH sdHandler;
+
+void setup() {
+    // Khởi động serial communication để hiển thị thông tin
+    Serial.begin(115200);
+    // Khởi động thẻ SD
+    if (!sdHandler.begin()) {
+        Serial.println("SD card initialization failed!");
+        return;
+    }
+    Serial.println("SD card initialized.");
+
+    // Tên file để lưu dữ liệu
+    const char* filename = "/data.txt";
+    
+    // Ghi số 123456789 vào file
+    if (sdHandler.writeInt(filename, 123456789)) {
+        Serial.println("Successfully wrote 123456789 to file.");
+    } else {
+        Serial.println("Failed to write to file.");
+    }
+
+    // Đọc số từ file
+    int value;
+    if (sdHandler.readInt(filename, value)) {
+        Serial.print("Successfully read value from file: ");
+        Serial.println(value);
+    } else {
+        Serial.println("Failed to read from file.");
+    }
+
+    // Giải phóng tài nguyên
+    sdHandler.deinit();
+}
+
+void loop() {
+    // Không cần thực hiện gì trong loop() cho ví dụ này
+}
+
+2.	Đọc số Float dạng 12.34 hoặc dobule dạng 123.456
+
+#include <Arduino.h>
+#include <SD.h>
+#include "SD_ESP32_QH.h"
+
+// Tạo đối tượng của lớp SD_ESP32_QH
+SD_ESP32_QH sd;
+
+void setup() {
+    Serial.begin(115200);
+    while (!Serial) { ; }
+
+    // Khởi động thẻ SD
+    if (!sd.begin()) {
+        Serial.println("SD card initialization failed!");
+        return;
+    }
+
+    Serial.println("SD card initialized.");
+
+    // Ghi giá trị float và double vào thẻ SD
+    float floatValue = 12.34;
+    double doubleValue = 123.456;
+
+    if (sd.writeFloat("/float_value.txt", floatValue)) {
+        Serial.println("Float value written successfully.");
+    } else {
+        Serial.println("Failed to write float value.");
+    }
+
+    if (sd.writeDouble("/double_value.txt", doubleValue)) {
+        Serial.println("Double value written successfully.");
+    } else {
+        Serial.println("Failed to write double value.");
+    }
+
+    // Đọc giá trị float và double từ thẻ SD
+    float readFloatValue;
+    double readDoubleValue;
+
+    if (sd.readFloat("/float_value.txt", readFloatValue)) {
+        Serial.print("Read float value: ");
+        Serial.println(readFloatValue);
+    } else {
+        Serial.println("Failed to read float value.");
+    }
+
+    if (sd.readDouble("/double_value.txt", readDoubleValue)) {
+        Serial.print("Read double value: ");
+        Serial.println(readDoubleValue);
+    } else {
+        Serial.println("Failed to read double value.");
+    }
+
+    // Giải phóng tài nguyên
+    sd.deinit();
+}
+
+void loop() {
+    // Không cần thiết cho ví dụ này
+}
+
+3. Đọc và ghi giá trị đúng và sai true và false
+
+#include <Arduino.h>
+#include <SD.h>
+#include "SD_ESP32_QH.h"
+
+// Tạo đối tượng của lớp SD_ESP32_QH
+SD_ESP32_QH sd;
+
+void setup() {
+    Serial.begin(115200);
+
+    // Khởi động thẻ SD
+    if (!sd.begin()) {
+        Serial.println("Failed to initialize SD card.");
+        while (1);
+    }
+
+    Serial.println("SD card initialized.");
+
+    // Tạo tên file để lưu giá trị boolean
+    const char* filename = "/bool_test.txt";
+
+    // Ghi giá trị boolean vào file
+    bool writeValue = true;
+    if (sd.writeBool(filename, writeValue)) {
+        Serial.println("Boolean value written to file successfully.");
+    } else {
+        Serial.println("Failed to write boolean value to file.");
+    }
+
+    // Đọc giá trị boolean từ file
+    bool readValue = false;
+    if (sd.readBool(filename, readValue)) {
+        Serial.print("Boolean value read from file: ");
+        Serial.println(readValue ? "true" : "false");
+    } else {
+        Serial.println("Failed to read boolean value from file.");
+    }
+}
+
+void loop() {
+    // Chương trình chính không làm gì trong loop
+}
+
+4. Đọc và ghi giá trị chuỗi văn bản 
+
+#include <Arduino.h>
+#include <SD.h>
+#include "SD_ESP32_QH.h"
+
+// Đối tượng lớp SD_ESP32_QH
+SD_ESP32_QH sdManager;
+
+// Tên tập tin để ghi dữ liệu
+const char* filename = "/example.txt";
+
+void setup() {
+    Serial.begin(115200);
+
+    // Khởi tạo thẻ SD
+    if (!sdManager.begin()) {
+        Serial.println("Failed to initialize SD card");
+        return;
+    }
+
+    // Viết dữ liệu vào thẻ SD
+    if (sdManager.writeString(filename, "Hello, SD Card!")) {
+        Serial.println("Successfully wrote string to file.");
+    } else {
+        Serial.println("Failed to write string to file.");
+    }
+
+    const char* charArray = "This is a char array.";
+    if (sdManager.writeCharArray(filename, charArray)) {
+        Serial.println("Successfully wrote char array to file.");
+    } else {
+        Serial.println("Failed to write char array to file.");
+    }
+
+    // Đọc dữ liệu từ thẻ SD
+    String readString;
+    if (sdManager.readString(filename, readString)) {
+        Serial.print("Read string from file: ");
+        Serial.println(readString);
+    } else {
+        Serial.println("Failed to read string from file.");
+    }
+
+    char readCharArray[100];
+    if (sdManager.readCharArray(filename, readCharArray, sizeof(readCharArray))) {
+        Serial.print("Read char array from file: ");
+        Serial.println(readCharArray);
+    } else {
+        Serial.println("Failed to read char array from file.");
+    }
+
+    // Giải phóng tài nguyên và tắt kết nối với thẻ SD
+    sdManager.deinit();
+}
+
+void loop() {
+    // Chương trình chính không thực hiện gì trong vòng lặp
+}
+
+
+
